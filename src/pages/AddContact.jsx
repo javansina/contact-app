@@ -5,7 +5,7 @@ function AddContact() {
    return (
       <>
          <Form submitType={'ADD-CONTACT'} />
-         <Link to={'/contacts'}>asdf</Link>
+         <Link to={'/'}>asdf</Link>
       </>
    );
 }

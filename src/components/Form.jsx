@@ -5,7 +5,10 @@ function Form({ submitType }) {
    const { state, dispatch } = useContacts();
    const params = useParams();
    const [contactData] = state.filter((i) => i.id === +params.id);
-   console.log(contactData);
+   const prevData = contactData;
+   console.log(state);
+   console.log(params.id);
+   console.log(prevData);
    const [changed, setChanged] = useState(true);
    const [showMessage, setShowMessage] = useState(false);
    const [showError, setShowError] = useState(false);
@@ -33,6 +36,12 @@ function Form({ submitType }) {
       focus: false,
       submitStatus: false,
    });
+
+   if (showError) {
+      setTimeout(() => {
+         setShowError(false);
+      }, 2000);
+   }
 
    const validation = (e) => {
       setChanged(false);
@@ -76,6 +85,7 @@ function Form({ submitType }) {
       if (!state.value.length) {
          func((state) => ({ ...state, focus: true }));
       }
+      setShowError(false);
    };
 
    const blurHandler = (state, func) => {
@@ -133,10 +143,14 @@ function Form({ submitType }) {
 
    return (
       <>
-         <Link to={'/contacts'}>dsfas</Link>
+         <Link to={'/'}>dsfas</Link>
          {showError ? (
             submitType === 'UPDATE-CONTACT' ? (
-               <h1>مقادیر را تغییر نداده اید</h1>
+               prevData.name === fullName.value ? (
+                  <h1>مقادیر را تغییر نداده اید</h1>
+               ) : (
+                  <h1>این مقدار قبلا ثبت شده است</h1>
+               )
             ) : (
                <h1>
                   این مخاطب قبلا در لیست مخاطبین ثبت شده است ، ایا قصد ویرایش
