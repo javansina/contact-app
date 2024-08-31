@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+   .myShadow {
+      box-shadow: 0px -5px 15px #000000
+   }
+   .m::placeholder {
+      color: #b88c9e;
+      font-size: 20px;
+      font-weight: 400;
+   }
+}
