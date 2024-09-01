@@ -2,12 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+   @font-face {
+      font-family: 'Dana'; /*400*/
+      src: local('Dana'),
+         url('/fonts/Dana/woff2/DanaFaNum-Regular.woff2') format('woff2');
+      font-display: swap;
+   }
+   @font-face {
+      font-family: 'Dana Medium'; /*500*/
+      src: local('Dana Medium'),
+         url('/fonts/Dana/woff2/DanaFaNum-Medium.woff2') format('woff2');
+      font-display: swap;
+   }
+
+   @font-face {
+      font-family: 'Dana DemiBold'; /*600*/
+      src: url('/fonts/Dana/woff2/DanaFaNum-DemiBold.woff2') format('woff2');
+      font-display: swap;
+   }
+   @font-face {
+      font-family: 'Morabba Light'; /*400*/
+      src: url('/fonts/Morabba/woff2/Morabba-Light.woff2') format('woff2');
+      font-display: swap;
+   }
+   @font-face {
+      font-family: 'Morabba Medium'; /*500*/
+      src: url('/fonts/Morabba/woff2/Morabba-Medium.woff2') format('woff2');
+      font-display: swap;
+   }
+
+   @font-face {
+      font-family: 'Morabba Bold'; /*600*/
+      src: url('/fonts/Morabba/woff2/Morabba-Bold.woff2') format('woff2');
+      font-display: swap;
+   }
+}
+
 @layer components {
+   .myFont {
+      @apply font-MorabbaMedium;
+   }
+   .successDivTransition {
+      transition: width 4s;
+   }
+   .successDiv {
+      @apply w-0
+   }
    .myShadow {
-      box-shadow: 0px -5px 15px #000000
+      box-shadow: 0px -5px 15px #000000;
+   }
+   .moduleShadow {
+      box-shadow: 10px 10px 30px #5f2c4260, -10px -10px 30px #72405569;
+   }
+   .shadowMor {
+      box-shadow: 10px 10px 30px #5f2c421e, -10px -10px 30px #72405513;
+   }
+   .shadowMorL {
+      box-shadow: 5px 5px 20px #5f2c421e, -5px -5px 20px #72405513;
    }
    .m::placeholder {
-      color: #b88c9e;
+      color: #9b7383;
       font-size: 20px;
       font-weight: 400;
    }

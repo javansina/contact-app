@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { RiDeleteBinLine } from 'react-icons/ri';
 import { CiMedicalCross } from 'react-icons/ci';
@@ -8,6 +8,7 @@ import { BsCheckAll } from 'react-icons/bs';
 
 import { useContacts } from '../context/Contacts';
 import Search from '../components/Search';
+import Successful from '../components/Successful';
 
 function Index() {
    const { state, dispatch } = useContacts();
@@ -16,8 +17,21 @@ function Index() {
    const [groupDelete, setGroupDelete] = useState(false);
    const [showMessage, setShowMessage] = useState('');
    const [checked, setChecked] = useState([]);
-   // console.log(state);
-   // console.log(searchedItems);
+   const location = useLocation();
+   const receivedData = location.state;
+   const [offMessage, setOffMessge] = useState(receivedData);
+
+   useEffect(() => {
+      const successDiv = document.getElementById('successful');
+      successDiv.classList.add("w-full")
+      successDiv.classList.remove("w-full")
+      console.log(successDiv);
+      
+      setTimeout(() => {
+         setOffMessge(false);
+      }, 4000);
+   }, []);
+
    useEffect(() => {
       state.length
          ? !searchedItems[0] && !searchedItems[1]
@@ -80,6 +94,7 @@ function Index() {
 
    return (
       <>
+         {offMessage && <Successful text={receivedData.message} />}
          <div className="flex justify-between items-center bg-[#B88C9E] mt-20 px-9 py-6  rounded-t-xl">
             <div className="flex items-end gap-x-5">
                <img
@@ -100,10 +115,10 @@ function Index() {
             />
 
             <Link
-               className="flex gap-x-3 items-center text-[#573747] hover:bg-[#76616E] hover:text-[#f3d4e2] font-medium p-3 pt-1.5 mt-2 rounded-lg"
+               className="flex gap-x-3 items-center text-[#573747] hover:bg-[#76616E] hover:text-[#f3d4e2] font-medium p-2 mt-3 rounded-lg"
                to={'add-contact'}
             >
-               <span className="mt-1.5">
+               <span className="">
                   <CiMedicalCross />
                </span>
                افزودن مخاطب
@@ -118,7 +133,7 @@ function Index() {
                <span className="p-5">not found</span>
             </div>
          ) : (
-            <div className="bg-[#D5AABD] text-pink-800 text-2xl p-0.5 pt-0 rounded-xl rounded-t-none">
+            <div className="bg-[#D5AABD] text-pink-800 text-2xl pt-0 rounded-xl rounded-t-none">
                <div className="pt-5">
                   <div className="grid grid-cols-12 pb-6 px-8 text-[#704C5E] font-bold drop-shadow-md shadow-lg">
                      <span className="col-span-1 flex justify-center items-center">
@@ -154,7 +169,7 @@ function Index() {
                         حذف
                      </span>
                   </div>
-                  <div className=" max-h-[605px] p-7 overflow-y-auto scrollbar-webkit my-1">
+                  <div className=" max-h-[605px] p-7 overflow-y-auto scrollbar-webkit m-1">
                      {searchedItems[1]?.map((i) => (
                         <div
                            key={i.id}
@@ -192,9 +207,9 @@ function Index() {
                               </span>
                               <span className="w-px h-full bg-gray-300"></span>
                            </span>
-                           <span
+                           <Link
                               className="col-span-1 flex justify-between items-center"
-                              onClick={() => editeHandler(i.id)}
+                              to={`/contact/${i.id}`}
                            >
                               <div className="w-full flex justify-center">
                                  <span className="pt-1.5 pr-1.5 pb-2 pl-2 rounded-md hover:bg-[#ac3866] hover:text-white/80">
@@ -202,7 +217,7 @@ function Index() {
                                  </span>
                               </div>
                               <span className="w-px h-full bg-gray-300"></span>
-                           </span>
+                           </Link>
                            <span className="col-span-1 flex justify-center items-center">
                               <span
                                  className="p-2 rounded-md hover:bg-[#ac3866] hover:text-white/80"
@@ -219,7 +234,7 @@ function Index() {
                         </div>
                      ))}
                   </div>
-                  <div className="myShadow h-0.5"></div>
+                  <div className="myShadow h-px"></div>
                </div>
                {/* <table className="border border-black p-3 mx-auto w-full mt-[500px] text-center">
             <thead>

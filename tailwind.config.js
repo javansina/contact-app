@@ -20,6 +20,14 @@ export default {
          gx: '1380px',
       },
       extend: {
+         fontFamily: {
+            Dana: 'Dana',
+            DanaMedium: 'Dana Medium',
+            DanaDemiBold: 'Dana DemiBold',
+            MorabbaLight: 'Morabba Light',
+            MorabbaMedium: 'Morabba Medium',
+            MorabbaBold: 'Morabba Bold',
+         },
          container: {
             center: true,
             padding: '1rem',
@@ -43,6 +51,14 @@ export default {
                400: '#00a693',
                500: '#42504c',
             },
+         },
+         spacing: {
+            4.5: '1.125rem',
+            5.5: '1.375rem',
+            6.5: '1.625rem',
+            7.5: '1.875rem',
+            8.5: '2.125rem',
+            9.5: '2.375rem',
          },
       },
    },

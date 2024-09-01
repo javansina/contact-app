@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useContacts } from '../context/Contacts';
 import { Link, useParams } from 'react-router-dom';
-import { FaExclamationCircle } from 'react-icons/fa';
+
+import Alerts from './Alerts';
+import AlertModule from './AlertModule';
 
 function Form({ submitType }) {
    const { state, dispatch } = useContacts();
@@ -10,8 +12,9 @@ function Form({ submitType }) {
    const prevData = contactData;
 
    const [changed, setChanged] = useState(true);
-   const [showMessage, setShowMessage] = useState(false);
+   const [showMessage, setShowMessage] = useState([false, '']);
    const [showError, setShowError] = useState(false);
+
    const [fullName, setFullName] = useState({
       value: contactData?.name || '',
       status: true,
@@ -37,11 +40,11 @@ function Form({ submitType }) {
       submitStatus: false,
    });
 
-   if (showError) {
-      setTimeout(() => {
-         setShowError(false);
-      }, 2000);
-   }
+   // if (showError) {
+   //    setTimeout(() => {
+   //       setShowError(false);
+   //    }, 2000);
+   // }
 
    const validation = (e) => {
       setChanged(false);
@@ -79,6 +82,7 @@ function Form({ submitType }) {
          }));
       }
    }, []);
+
    const idMaker = () => Math.ceil(Math.pow(Math.random() * 35634, 3));
 
    const focusHandler = (state, func) => {
@@ -121,19 +125,26 @@ function Form({ submitType }) {
             }
          });
       }
+      const contact = {
+         id: submitType === 'UPDATE-CONTACT' ? +id : idMaker(),
+         name: fullName.value,
+         email: email.value,
+         jub: job.value,
+         phoneNumber: phoneNumber.value,
+      };
       if (!invalids.length && !job.focus && !phoneNumber.focus) {
-         const contact = {
-            id: submitType === 'UPDATE-CONTACT' ? +id : idMaker(),
-            name: fullName.value,
-            email: email.value,
-            jub: job.value,
-            phoneNumber: phoneNumber.value,
-         };
          if (!state.find((i) => i.name === contact.name)) {
-            dispatch({
-               type: submitType,
-               payload: contact,
-            });
+            submitType === 'UPDATE-CONTACT'
+               ? setShowMessage([
+                    true,
+                    'از ایجاد تغییرات مطمئن هستید ؟',
+                    contact,
+                 ])
+               : setShowMessage([
+                    true,
+                    'از ثبت این مخاطب اطمینان دارید ؟',
+                    contact,
+                 ]);
             setShowError(false);
          } else {
             setShowError(true);
@@ -141,36 +152,72 @@ function Form({ submitType }) {
       }
    };
 
+   const finalSubmit = (contact) => {
+      dispatch({
+         type: submitType,
+         payload: contact,
+      });
+   };
+
    return (
       <>
-         <div className="w-[70%] mx-auto">
+         <div className="w-[70%] mx-auto font-semibold font-DanaDemiBold">
+            {showMessage[0] && !showError && (
+               <AlertModule
+                  finalSubmit={finalSubmit}
+                  showMessage={showMessage}
+                  setShowMessage={setShowMessage}
+                  payload={[0]}
+                  setShowError={() => {}}
+                  text={''}
+               />
+            )}
             {showError ? (
                submitType === 'UPDATE-CONTACT' ? (
                   prevData.name === fullName.value ? (
-                     <span>مقادیر را تغییر نداده اید</span>
+                     <AlertModule
+                        finalSubmit={finalSubmit}
+                        showMessage={showMessage}
+                        setShowMessage={setShowMessage}
+                        payload={['NO-CHANGE']}
+                        setShowError={setShowError}
+                        text={'مقادیر را تغییر نداده اید'}
+                     />
                   ) : (
-                     <span>این مقدار قبلا ثبت شده است</span>
+                     <AlertModule
+                        finalSubmit={finalSubmit}
+                        showMessage={showMessage}
+                        setShowMessage={setShowMessage}
+                        payload={['WAS-REGISTERED']}
+                        setShowError={setShowError}
+                        text={'این مقدار قبلا ثبت شده است'}
+                     />
                   )
                ) : (
-                  <span>
-                     این مخاطب قبلا در لیست مخاطبین ثبت شده است ، ایا قصد ویرایش
-                     دارید؟
-                  </span>
+                  <AlertModule
+                     finalSubmit={finalSubmit}
+                     showMessage={showMessage}
+                     setShowMessage={setShowMessage}
+                     payload={['SEND', fullName.value]}
+                     setShowError={setShowError}
+                     text={
+                        'این مخاطب قبلا در لیست مخاطبین ثبت شده است ، ایا قصد ویرایش دارید؟'
+                     }
+                  />
                )
             ) : null}
-            <Link to={'/'} className="flex justify-end">
-               بازگشت به لیست مخاطبین
-               <img className="w-8" src="/contacts-svgrepo-com (1).svg" />
-            </Link>
+
             <form
                onSubmit={submitHandler}
-               className="flex flex-col gap-y-5 mt-10 p-20 bg-[#B88C9E] text-[#44122b] font-semibold text-xl"
+               className="flex flex-col gap-y-3 mt-10 px-20 pt-16 pb-10 bg-[#D5AABD] shadowMor text-[#44122b] rounded-xl text-xl"
             >
                <div className="grid grid-cols-12">
-                  <p className="col-span-4">
-                     نام و نام خانوادگی <span className="">*</span> :
-                  </p>
+                  <label htmlFor="name" className="col-span-4 text-bas">
+                     نام و نام خانوادگی
+                     <span className="text-[#c91616]">*</span> :
+                  </label>
                   <input
+                     id="name"
                      onChange={(e) =>
                         validation([
                            e.target.value,
@@ -180,31 +227,26 @@ function Form({ submitType }) {
                      }
                      value={fullName.value}
                      onFocus={() => focusHandler(fullName, setFullName)}
-                     className="col-span-8 p-2 bg-[#e3b9b9] rounded-md"
+                     className="col-span-8 p-2 bg-[#E3B9CC] rounded-md outline-[#D5AABD]"
                      type="text"
                   />
 
                   {fullName.focus ? (
-                     <div className="col-span-12">
-                        <span className="flex justify-end items-center gap-x-2 font-light text-[#4b4348] p-2 pl-0">
-                           این بخش نباید خالی بماند
-                           <FaExclamationCircle color="#c91616" />
-                        </span>
-                     </div>
+                     <Alerts text={'این بخش نباید خالی بماند'} />
                   ) : !fullName.status ? (
-                     <div className="col-span-12 text-left">
-                        <span className="font-light text-[#4b4348] p-2">
-                           تعداد کارکتر &apos; نام و نام خانوادگی &apos; باید
-                           بین 4 تا 20 کارکتر باشد
-                        </span>
-                     </div>
+                     <Alerts
+                        text={
+                           "تعداد کارکتر ' نام و نام خانوادگی ' باید بین 4 تا 20 کارکتر باشد"
+                        }
+                     />
                   ) : null}
                </div>
                <div className="grid grid-cols-12">
-                  <p className="col-span-4">
-                     ایمیل <span>*</span> :
-                  </p>
+                  <label htmlFor="email" className="col-span-4">
+                     ایمیل <span className="text-[#c91616]">*</span> :
+                  </label>
                   <input
+                     id="email"
                      onChange={(e) => {
                         validation([
                            e.target.value.trim(),
@@ -215,27 +257,21 @@ function Form({ submitType }) {
                      }}
                      value={email.value}
                      onFocus={() => focusHandler(email, setEmail)}
-                     className="col-span-8 p-2 bg-[#E3B9CC] rounded-md"
+                     className="col-span-8 p-2 bg-[#E3B9CC] rounded-md outline-[#D5AABD]"
                      type="text"
                   />
                   {email.focus ? (
-                     <div className="col-span-12">
-                        <span className="flex justify-end items-center gap-x-2 font-light text-[#4b4348] p-2 pl-0">
-                           این بخش نباید خالی بماند
-                           <FaExclamationCircle color="#c91616" />
-                        </span>
-                     </div>
+                     <Alerts text={'این بخش نباید خالی بماند'} />
                   ) : !email.status ? (
-                     <div className="col-span-12 text-left">
-                        <span className="font-light text-[#4b4348] p-2">
-                           ساختار ایمیل معتبر : example@gmail.com
-                        </span>
-                     </div>
+                     <Alerts text={'ساختار ایمیل معتبر : example@gmail.com'} />
                   ) : null}
                </div>
                <div className="grid grid-cols-12">
-                  <span className="col-span-4">شغل :</span>
+                  <label htmlFor="job" className="col-span-4">
+                     شغل :
+                  </label>
                   <input
+                     id="job"
                      onChange={(e) =>
                         validation([
                            e.target.value.trim(),
@@ -246,28 +282,29 @@ function Form({ submitType }) {
                      value={job.value}
                      onBlur={() => blurHandler(job, setJob)}
                      onFocus={() => focusHandler(job, setJob)}
-                     className="col-span-8 p-2 bg-[#E3B9CC] rounded-md"
+                     className="col-span-8 p-2 bg-[#E3B9CC] rounded-md outline-[#D5AABD]"
                      type="text"
                   />
                   {job.focus ? (
-                     <div className="col-span-12 text-left">
-                        <span className="font-light text-[#4b4348] p-2">
-                           بهتر است یک عبارت معتبر وارد کنید یا این بخش را خالی
-                           بگذارید
-                        </span>
-                     </div>
+                     <Alerts
+                        text={
+                           'بهتر است یک عبارت معتبر وارد کنید یا این بخش را خالی بگذارید'
+                        }
+                     />
                   ) : !job.status ? (
-                     <div className="col-span-12 text-left">
-                        <span className="font-light text-[#4b4348] p-2">
-                           تعداد کارکتر &apos; شغل &apos; باید بین 4 تا 20
-                           کارکتر باشد
-                        </span>
-                     </div>
+                     <Alerts
+                        text={
+                           "تعداد کارکتر ' شغل ' باید بین 4 تا 20 کارکتر باشد"
+                        }
+                     />
                   ) : null}
                </div>
                <div className="grid grid-cols-12">
-                  <span className="col-span-4">تلفن همراه :</span>
+                  <label htmlFor="phone" className="col-span-4">
+                     تلفن همراه :
+                  </label>
                   <input
+                     id="phone"
                      onChange={(e) =>
                         validation([
                            e.target.value.trim(),
@@ -278,27 +315,28 @@ function Form({ submitType }) {
                      value={phoneNumber.value}
                      onBlur={() => blurHandler(phoneNumber, setPhoneNumber)}
                      onFocus={() => focusHandler(phoneNumber, setPhoneNumber)}
-                     placeholder=" 111 11 11 091"
-                     className="col-span-8 p-2 bg-[#E3B9CC] rounded-md"
+                     placeholder=" 1111 111 0911"
+                     className="col-span-8 p-2 bg-[#E3B9CC] m rounded-md"
                      type="text"
                   />
                   {phoneNumber.focus ? (
-                     <div className="col-span-12 text-left">
-                        <span className="font-light text-[#4b4348] p-2">
-                           بهتر است یک شماره معتبر وارد کنید یا این بخش را خالی
-                           بگذارید
-                        </span>
-                     </div>
+                     <Alerts
+                        text={
+                           'بهتر است یک شماره معتبر وارد کنید یا این بخش را خالی بگذارید'
+                        }
+                     />
                   ) : !phoneNumber.status ? (
-                     <div className="col-span-12 text-left">
-                        <span className="font-light text-[#4b4348] p-2">
-                           شماره همراه باید به صورت &apos; 09123456789 &apos; و
-                           11 رقمی باشد
-                        </span>
-                     </div>
+                     <Alerts
+                        text={
+                           "شماره همراه باید به صورت ' 09123456789 ' و 11 رقمی باشد"
+                        }
+                     />
                   ) : null}
                </div>
-               <button type="submit">
+               <button
+                  className="mt-7 bg-[#802348] hover:bg-[#802348]/90 text-white/90 hover:text-white w-fit mx-auto p-3 hover:scale-105 rounded-xl transition-all"
+                  type="submit"
+               >
                   {submitType === 'ADD-CONTACT'
                      ? 'افزودن مخاطب'
                      : 'ویرایش اطلاعات'}
