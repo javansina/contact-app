@@ -1,12 +1,15 @@
+import { FaRegCheckCircle } from 'react-icons/fa';
 function Successful({ text }) {
-    constdocument.getElementById("successful").classList.add("w-0")
    return (
       <>
-         <div className="bg-slate-500 w-fit">
-            <div className="bg-slate-500 w-fit px-5">
-               <span>{text}</span>
+         <div id="successful" className="bg-[#0e9149] h-16 w-fit rounded-xl">
+            <div className="w-fit px-7 py-4">
+               <span className="flex gap-x-5 text-white">
+                  {text}
+                  <FaRegCheckCircle />
+               </span>
             </div>
-            <div id="successful" className="p1 bg-purple-900 w-full h-1 successDivTransition"></div>
+            <div className="py-1 rounded-b-full mb-4 bg-[#8bb69e] w-full h-1 successDiv"></div>
          </div>
       </>
    );

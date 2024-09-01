@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useContacts } from '../context/Contacts';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import Alerts from './Alerts';
 import AlertModule from './AlertModule';
@@ -10,11 +10,8 @@ function Form({ submitType }) {
    const { id } = useParams();
    const [contactData] = state.filter((i) => i.id === +id);
    const prevData = contactData;
-
-   const [changed, setChanged] = useState(true);
    const [showMessage, setShowMessage] = useState([false, '']);
    const [showError, setShowError] = useState(false);
-
    const [fullName, setFullName] = useState({
       value: contactData?.name || '',
       status: true,
@@ -40,14 +37,7 @@ function Form({ submitType }) {
       submitStatus: false,
    });
 
-   // if (showError) {
-   //    setTimeout(() => {
-   //       setShowError(false);
-   //    }, 2000);
-   // }
-
    const validation = (e) => {
-      setChanged(false);
       const value = e[0];
       const regex = e[1];
       const result = regex.test(value.trim());
@@ -161,7 +151,7 @@ function Form({ submitType }) {
 
    return (
       <>
-         <div className="w-[70%] mx-auto font-semibold font-DanaDemiBold">
+         <div className="w-[70%] mx-auto font-semibold">
             {showMessage[0] && !showError && (
                <AlertModule
                   finalSubmit={finalSubmit}
@@ -315,8 +305,7 @@ function Form({ submitType }) {
                      value={phoneNumber.value}
                      onBlur={() => blurHandler(phoneNumber, setPhoneNumber)}
                      onFocus={() => focusHandler(phoneNumber, setPhoneNumber)}
-                     placeholder=" 1111 111 0911"
-                     className="col-span-8 p-2 bg-[#E3B9CC] m rounded-md"
+                     className="col-span-8 p-2 bg-[#E3B9CC] outline-[#D5AABD] rounded-md"
                      type="text"
                   />
                   {phoneNumber.focus ? (

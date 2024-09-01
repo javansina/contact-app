@@ -9,9 +9,12 @@ function AlertModule({
    showMessage,
    setShowMessage,
 }) {
+
    const navigate = useNavigate();
-   const { state, dispatch } = useContacts();
+   const { state,  } = useContacts();
+   
    let id = '';
+
    if (payload[0] === 'SEND') {
       const data = state.filter((i) => i.name === payload[1]);
       id = data[0].id;

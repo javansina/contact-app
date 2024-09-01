@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { RiDeleteBinLine } from 'react-icons/ri';
 import { CiMedicalCross } from 'react-icons/ci';
@@ -8,7 +8,7 @@ import { BsCheckAll } from 'react-icons/bs';
 
 import { useContacts } from '../context/Contacts';
 import Search from '../components/Search';
-import Successful from '../components/Successful';
+
 
 function Index() {
    const { state, dispatch } = useContacts();
@@ -17,20 +17,6 @@ function Index() {
    const [groupDelete, setGroupDelete] = useState(false);
    const [showMessage, setShowMessage] = useState('');
    const [checked, setChecked] = useState([]);
-   const location = useLocation();
-   const receivedData = location.state;
-   const [offMessage, setOffMessge] = useState(receivedData);
-
-   useEffect(() => {
-      const successDiv = document.getElementById('successful');
-      successDiv.classList.add("w-full")
-      successDiv.classList.remove("w-full")
-      console.log(successDiv);
-      
-      setTimeout(() => {
-         setOffMessge(false);
-      }, 4000);
-   }, []);
 
    useEffect(() => {
       state.length
@@ -40,25 +26,17 @@ function Index() {
             ? setShowMessage('NOT-FOUND')
             : null
          : setShowMessage('NO-CONTACT');
-      console.log(showMessage);
    }, [searchedItems]);
    useEffect(() => {
       setSearchedItems([false, state]);
    }, [state]);
-   const editeHandler = (id) => {
-      location.pathname = `/contact/${id}`;
-   };
 
    const checkBoxHandler = (e, id) => {
-      console.log(checked);
-      console.log(e.target.checked);
-
       if (!checked.includes(id)) {
          setGroupDelete(true);
          setChecked([...checked, id]);
       } else {
          const result = checked.filter((i) => i !== id);
-         console.log(result);
          setChecked([...result]);
          if (!result.length) {
             setGroupDelete(false);
@@ -67,8 +45,6 @@ function Index() {
    };
 
    const groupDeleteHandler = () => {
-      console.log(groupDelete);
-
       dispatch({
          type: 'GROUP-DELETE',
          payload: checked,
@@ -85,25 +61,23 @@ function Index() {
          }
       }
       setChecked(selected);
-      console.log(state.length);
-      console.log(selected);
-      console.log(checked);
-   };
 
-   console.log(searchedItemsStyles);
+   };
 
    return (
       <>
-         {offMessage && <Successful text={receivedData.message} />}
-         <div className="flex justify-between items-center bg-[#B88C9E] mt-20 px-9 py-6  rounded-t-xl">
+         {/* {offMessage && receivedData.length && (
+            <Successful text={receivedData?.message} />
+         )} */}
+         <div className="flex justify-between items-center bg-[#B88C9E] mt-20 px-10 py-6  rounded-t-xl">
             <div className="flex items-end gap-x-5">
                <img
-                  className="w-8"
+                  className="w-8 mb-1"
                   src="/contacts-svgrepo-com (1).svg"
                   alt=""
                />
-               <span className="font-semibold text-2xl text-[#5e364a]">
-                  مخاطبین
+               <span className="font-semibold text-[#5e364a] font-MorabbaBold text-3xl">
+                  مخاطب ها
                </span>
             </div>
 
@@ -115,7 +89,7 @@ function Index() {
             />
 
             <Link
-               className="flex gap-x-3 items-center text-[#573747] hover:bg-[#76616E] hover:text-[#f3d4e2] font-medium p-2 mt-3 rounded-lg"
+               className="flex gap-x-3 items-center text-[#573747] hover:bg-[#76616E] hover:text-[#f3d4e2] font-semibold text-xl font-MorabbaMedium p-2 px-4 mt-3 rounded-lg transition-all"
                to={'add-contact'}
             >
                <span className="">
@@ -126,11 +100,11 @@ function Index() {
          </div>
          {showMessage && showMessage === 'NO-CONTACT' ? (
             <div className="flex justify-center items-center  bg-[#D5AABD] rounded-b-xl text-4xl text-[#704C5E]">
-               <span className="p-5">no contact</span>
+               <span className="p-10">دریغ از یک مخاطب ... !</span>
             </div>
          ) : showMessage === 'NOT-FOUND' ? (
-            <div className="flex justify-center items-center  bg-[#D5AABD] rounded-b-xl text-4xl text-[#704C5E]">
-               <span className="p-5">not found</span>
+            <div className="flex justify-center items-center  bg-[#D5AABD] rounded-b-xl font-DanaMedium text-4xl text-[#704C5E]">
+               <span className="p-10">مخاطبی با این مشخصات یافت نشد !</span>
             </div>
          ) : (
             <div className="bg-[#D5AABD] text-pink-800 text-2xl pt-0 rounded-xl rounded-t-none">
@@ -139,13 +113,16 @@ function Index() {
                      <span className="col-span-1 flex justify-center items-center">
                         {groupDelete && (
                            <div className="w-full flex justify-between">
-                              <button onClick={allItemsselectHandler}>
+                              <button
+                              className='hover:bg-[#ac3866] p-0.5 hover:text-white/80 rounded-lg' onClick={allItemsselectHandler}>
                                  <BsCheckAll size={30} />
                               </button>
-                              <button onClick={groupDeleteHandler}>
+                              <button
+                              className='hover:bg-[#ac3866] p-1.5 hover:text-white/80 rounded-lg' onClick={groupDeleteHandler}>
                                  <RiDeleteBinLine size={23} />
                               </button>
                               <button
+                              className='hover:bg-[#ac3866] p-1.5 hover:text-white/80 rounded-lg'
                                  onClick={() => {
                                     setGroupDelete(false);
                                     setChecked([]);

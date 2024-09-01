@@ -1,14 +1,8 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Form from '../components/Form';
-import {  useState } from 'react';
-import { useUpdateData } from '../context/UpdateContext';
+
 
 function UpdateContact() {
-   const mozw = useUpdateData()
-console.log(mozw);
-
-
-
    return (
       <>
          <div className=" w-[70%] mx-auto mt-16 flex justify-between font-semibold font-DanaDemiBold">
