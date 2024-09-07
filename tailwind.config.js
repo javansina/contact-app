@@ -4,6 +4,9 @@ export default {
    theme: {
       screens: {
          xs: '480px',
+         maxXs: {
+            max: '640px',
+         },
          sm: '640px',
          maxSm: {
             max: '640px',

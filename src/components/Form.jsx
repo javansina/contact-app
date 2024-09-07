@@ -94,7 +94,13 @@ function Form({ submitType }) {
       { state: fullName, stateFunction: setFullName },
       { state: email, stateFunction: setEmail },
    ];
-
+   const contact = {
+      id: submitType === 'UPDATE-CONTACT' ? +id : idMaker(),
+      name: fullName.value,
+      email: email.value,
+      job: job.value.trim(),
+      phoneNumber: phoneNumber.value,
+   };
    const submitHandler = (e) => {
       e.preventDefault();
 
@@ -115,13 +121,7 @@ function Form({ submitType }) {
             }
          });
       }
-      const contact = {
-         id: submitType === 'UPDATE-CONTACT' ? +id : idMaker(),
-         name: fullName.value,
-         email: email.value,
-         jub: job.value,
-         phoneNumber: phoneNumber.value,
-      };
+
       if (!invalids.length && !job.focus && !phoneNumber.focus) {
          if (!state.find((i) => i.name === contact.name)) {
             submitType === 'UPDATE-CONTACT'
@@ -151,7 +151,7 @@ function Form({ submitType }) {
 
    return (
       <>
-         <div className="w-[70%] mx-auto font-semibold">
+         <div className="lg:w-[70%] mx-auto font-semibold">
             {showMessage[0] && !showError && (
                <AlertModule
                   finalSubmit={finalSubmit}
@@ -164,7 +164,10 @@ function Form({ submitType }) {
             )}
             {showError ? (
                submitType === 'UPDATE-CONTACT' ? (
-                  prevData.name === fullName.value ? (
+                  prevData.name === fullName.value &&
+                  prevData.email === email.value &&
+                  prevData.job === job.value &&
+                  prevData.phoneNumber === phoneNumber.value ? (
                      <AlertModule
                         finalSubmit={finalSubmit}
                         showMessage={showMessage}
@@ -176,11 +179,15 @@ function Form({ submitType }) {
                   ) : (
                      <AlertModule
                         finalSubmit={finalSubmit}
-                        showMessage={showMessage}
+                        showMessage={[
+                           true,
+                           'از ایجاد تغییرات مطمئن هستید ؟',
+                           contact,
+                        ]}
                         setShowMessage={setShowMessage}
                         payload={['WAS-REGISTERED']}
                         setShowError={setShowError}
-                        text={'این مقدار قبلا ثبت شده است'}
+                        text={''}
                      />
                   )
                ) : (
@@ -199,12 +206,15 @@ function Form({ submitType }) {
 
             <form
                onSubmit={submitHandler}
-               className="flex flex-col gap-y-3 mt-10 px-20 pt-16 pb-10 bg-[#D5AABD] shadowMor text-[#44122b] rounded-xl text-xl"
+               className="flex flex-col gap-y-3 mt-10 maxXs:mt-8 px-20 maxXs:px-10 pt-16 maxXs:pt-10 pb-10 bg-[#D5AABD] shadowMor text-[#44122b] rounded-xl text-xl"
             >
                <div className="grid grid-cols-12">
-                  <label htmlFor="name" className="col-span-4 text-bas">
+                  <label
+                     htmlFor="name"
+                     className="col-span-4 maxMd:col-span-12  maxXs:text-base flex items-center"
+                  >
                      نام و نام خانوادگی
-                     <span className="text-[#c91616]">*</span> :
+                     <span className="text-[#c91616] mx-1 mb-3">*</span>:
                   </label>
                   <input
                      id="name"
@@ -217,7 +227,7 @@ function Form({ submitType }) {
                      }
                      value={fullName.value}
                      onFocus={() => focusHandler(fullName, setFullName)}
-                     className="col-span-8 p-2 bg-[#E3B9CC] rounded-md outline-[#D5AABD]"
+                     className="col-span-8 maxMd:col-span-12 p-2 bg-[#E3B9CC] rounded-md outline-[#D5AABD]"
                      type="text"
                   />
 
@@ -232,8 +242,11 @@ function Form({ submitType }) {
                   ) : null}
                </div>
                <div className="grid grid-cols-12">
-                  <label htmlFor="email" className="col-span-4">
-                     ایمیل <span className="text-[#c91616]">*</span> :
+                  <label
+                     htmlFor="email"
+                     className="col-span-4 maxMd:col-span-12  maxXs:text-base flex items-center"
+                  >
+                     ایمیل<span className="text-[#c91616] mx-1 mb-3">*</span>:
                   </label>
                   <input
                      id="email"
@@ -247,7 +260,7 @@ function Form({ submitType }) {
                      }}
                      value={email.value}
                      onFocus={() => focusHandler(email, setEmail)}
-                     className="col-span-8 p-2 bg-[#E3B9CC] rounded-md outline-[#D5AABD]"
+                     className="col-span-8 maxMd:col-span-12 p-2 bg-[#E3B9CC] rounded-md outline-[#D5AABD]"
                      type="text"
                   />
                   {email.focus ? (
@@ -257,14 +270,17 @@ function Form({ submitType }) {
                   ) : null}
                </div>
                <div className="grid grid-cols-12">
-                  <label htmlFor="job" className="col-span-4">
+                  <label
+                     htmlFor="job"
+                     className="col-span-4 maxMd:col-span-12  maxXs:text-base flex items-center"
+                  >
                      شغل :
                   </label>
                   <input
                      id="job"
                      onChange={(e) =>
                         validation([
-                           e.target.value.trim(),
+                           e.target.value,
                            /^[a-zA-z\u0600-\u06FF\s\d]{4,20}$/,
                            setJob,
                         ])
@@ -272,7 +288,7 @@ function Form({ submitType }) {
                      value={job.value}
                      onBlur={() => blurHandler(job, setJob)}
                      onFocus={() => focusHandler(job, setJob)}
-                     className="col-span-8 p-2 bg-[#E3B9CC] rounded-md outline-[#D5AABD]"
+                     className="col-span-8 maxMd:col-span-12 p-2 bg-[#E3B9CC] rounded-md outline-[#D5AABD]"
                      type="text"
                   />
                   {job.focus ? (
@@ -290,7 +306,10 @@ function Form({ submitType }) {
                   ) : null}
                </div>
                <div className="grid grid-cols-12">
-                  <label htmlFor="phone" className="col-span-4">
+                  <label
+                     htmlFor="phone"
+                     className="col-span-4 maxMd:col-span-12  maxXs:text-base flex items-center"
+                  >
                      تلفن همراه :
                   </label>
                   <input
@@ -305,7 +324,7 @@ function Form({ submitType }) {
                      value={phoneNumber.value}
                      onBlur={() => blurHandler(phoneNumber, setPhoneNumber)}
                      onFocus={() => focusHandler(phoneNumber, setPhoneNumber)}
-                     className="col-span-8 p-2 bg-[#E3B9CC] outline-[#D5AABD] rounded-md"
+                     className="col-span-8 maxMd:col-span-12 p-2 bg-[#E3B9CC] outline-[#D5AABD] rounded-md"
                      type="text"
                   />
                   {phoneNumber.focus ? (
@@ -323,7 +342,7 @@ function Form({ submitType }) {
                   ) : null}
                </div>
                <button
-                  className="mt-7 bg-[#802348] hover:bg-[#802348]/90 text-white/90 hover:text-white w-fit mx-auto p-3 hover:scale-105 rounded-xl transition-all"
+                  className="mt-7 bg-[#802348] hover:bg-[#802348]/90 maxXs:text-base text-white/90 hover:text-white w-fit mx-auto p-3 hover:scale-105 rounded-xl transition-all"
                   type="submit"
                >
                   {submitType === 'ADD-CONTACT'

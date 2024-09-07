@@ -9,10 +9,9 @@ function AlertModule({
    showMessage,
    setShowMessage,
 }) {
-
    const navigate = useNavigate();
-   const { state,  } = useContacts();
-   
+   const { state } = useContacts();
+
    let id = '';
 
    if (payload[0] === 'SEND') {
@@ -62,9 +61,7 @@ function AlertModule({
                      </button>
                      <button
                         className="bg-[#743454] p-2.5 rounded-lg text-white tracking-wider"
-                        onClick={() => {
-                           setShowError(true);
-                        }}
+                        onClick={() => setShowMessage(false)}
                      >
                         خیر
                      </button>

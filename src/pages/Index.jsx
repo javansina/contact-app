@@ -8,13 +8,14 @@ import { BsCheckAll } from 'react-icons/bs';
 
 import { useContacts } from '../context/Contacts';
 import Search from '../components/Search';
-
+import AlertModule from '../components/AlertModule';
 
 function Index() {
    const { state, dispatch } = useContacts();
    const [searchedItems, setSearchedItems] = useState([false, []]);
    const [searchedItemsStyles, setSearchedItemsStyles] = useState('');
    const [groupDelete, setGroupDelete] = useState(false);
+   const [showAlert, setShowAlert] = useState(false);
    const [showMessage, setShowMessage] = useState('');
    const [checked, setChecked] = useState([]);
 
@@ -61,13 +62,22 @@ function Index() {
          }
       }
       setChecked(selected);
-
    };
 
    return (
       <>
          {/* {offMessage && receivedData.length && (
             <Successful text={receivedData?.message} />
+         )} */}
+         {/* {showAlert && (
+            <AlertModule
+               finalSubmit={finalSubmit}
+               showMessage={showMessage}
+               setShowMessage={setShowMessage}
+               payload={['NO-CHANGE']}
+               setShowError={setShowError}
+               text={'مقادیر را تغییر نداده اید'}
+            />
          )} */}
          <div className="flex justify-between items-center bg-[#B88C9E] mt-20 px-10 py-6  rounded-t-xl">
             <div className="flex items-end gap-x-5">
@@ -114,15 +124,19 @@ function Index() {
                         {groupDelete && (
                            <div className="w-full flex justify-between">
                               <button
-                              className='hover:bg-[#ac3866] p-0.5 hover:text-white/80 rounded-lg' onClick={allItemsselectHandler}>
+                                 className="hover:bg-[#ac3866] p-0.5 hover:text-white/80 rounded-lg"
+                                 onClick={allItemsselectHandler}
+                              >
                                  <BsCheckAll size={30} />
                               </button>
                               <button
-                              className='hover:bg-[#ac3866] p-1.5 hover:text-white/80 rounded-lg' onClick={groupDeleteHandler}>
+                                 className="hover:bg-[#ac3866] p-1.5 hover:text-white/80 rounded-lg"
+                                 onClick={groupDeleteHandler}
+                              >
                                  <RiDeleteBinLine size={23} />
                               </button>
                               <button
-                              className='hover:bg-[#ac3866] p-1.5 hover:text-white/80 rounded-lg'
+                                 className="hover:bg-[#ac3866] p-1.5 hover:text-white/80 rounded-lg"
                                  onClick={() => {
                                     setGroupDelete(false);
                                     setChecked([]);
