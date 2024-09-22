@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useContacts } from '../context/Contacts';
 import { useParams } from 'react-router-dom';
 
@@ -8,8 +8,11 @@ import AlertModule from './AlertModule';
 function Form({ submitType }) {
    const { state, dispatch } = useContacts();
    const { id } = useParams();
+   const input = useRef(null);
+
    const [contactData] = state.filter((i) => i.id === +id);
    const prevData = contactData;
+
    const [showMessage, setShowMessage] = useState([false, '']);
    const [showError, setShowError] = useState(false);
    const [fullName, setFullName] = useState({
@@ -36,7 +39,10 @@ function Form({ submitType }) {
       focus: false,
       submitStatus: false,
    });
-
+   useEffect(() => {
+      input.current.focus();
+      console.log(input);
+   }, []);
    const validation = (e) => {
       const value = e[0];
       const regex = e[1];
@@ -89,7 +95,14 @@ function Form({ submitType }) {
          ? func((state) => ({ ...state, focus: false, status: true }))
          : func((state) => ({ ...state, focus: true, status: false }));
    };
-
+   const moz = useMemo(() => {
+      let s = 342;
+      s = +234;
+      return () => {
+         console.log('moz');
+      };
+   }, []);
+   console.log(moz);
    const importantSubList = [
       { state: fullName, stateFunction: setFullName },
       { state: email, stateFunction: setEmail },
@@ -148,7 +161,7 @@ function Form({ submitType }) {
          payload: contact,
       });
    };
-
+   console.log(!![]);
    return (
       <>
          <div className="lg:w-[70%] mx-auto font-semibold">
@@ -225,6 +238,8 @@ function Form({ submitType }) {
                            setFullName,
                         ])
                      }
+                     autoComplete="off"
+                     ref={input}
                      value={fullName.value}
                      onFocus={() => focusHandler(fullName, setFullName)}
                      className="col-span-8 maxMd:col-span-12 p-2 bg-[#E3B9CC] rounded-md outline-[#D5AABD]"
@@ -249,6 +264,7 @@ function Form({ submitType }) {
                      ایمیل<span className="text-[#c91616] mx-1 mb-3">*</span>:
                   </label>
                   <input
+                     autoComplete="off"
                      id="email"
                      onChange={(e) => {
                         validation([
@@ -277,6 +293,7 @@ function Form({ submitType }) {
                      شغل :
                   </label>
                   <input
+                     autoComplete="off"
                      id="job"
                      onChange={(e) =>
                         validation([
@@ -313,6 +330,7 @@ function Form({ submitType }) {
                      تلفن همراه :
                   </label>
                   <input
+                     autoComplete="off"
                      id="phone"
                      onChange={(e) =>
                         validation([
