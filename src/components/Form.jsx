@@ -1,66 +1,67 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+/* eslint-disable no-useless-escape */
+/* eslint-disable react/prop-types */
+import { useEffect, useState } from 'react';
 import { useContacts } from '../context/Contacts';
 import { useParams } from 'react-router-dom';
 
 import Alerts from './Alerts';
 import AlertModule from './AlertModule';
+import axios from 'axios';
+import { FaRegCheckCircle } from 'react-icons/fa';
+import Input from './Input';
 
 function Form({ submitType }) {
    const { state, dispatch } = useContacts();
    const { id } = useParams();
-   const input = useRef(null);
+   const [contactData] = state.filter((i) => i.id === id);
+   let prevData = contactData;
 
-   const [contactData] = state.filter((i) => i.id === +id);
-   const prevData = contactData;
-
+   const [successMessage, setSuccessMessage] = useState([false, '', '']);
    const [showMessage, setShowMessage] = useState([false, '']);
    const [showError, setShowError] = useState(false);
+
    const [fullName, setFullName] = useState({
-      value: contactData?.name || '',
+      value: '',
       status: true,
       focus: false,
       submitStatus: false,
    });
    const [email, setEmail] = useState({
-      value: contactData?.email || '',
+      value: prevData?.email || '',
       status: true,
       focus: false,
       submitStatus: false,
    });
    const [job, setJob] = useState({
-      value: contactData?.job || '',
+      value: prevData?.job || '',
       status: true,
       focus: false,
       submitStatus: false,
    });
    const [phoneNumber, setPhoneNumber] = useState({
-      value: contactData?.phoneNumber || '',
+      value: prevData?.phoneNumber || '',
       status: true,
       focus: false,
       submitStatus: false,
    });
+
    useEffect(() => {
-      input.current.focus();
-      console.log(input);
-   }, []);
-   const validation = (e) => {
-      const value = e[0];
-      const regex = e[1];
-      const result = regex.test(value.trim());
-      result
-         ? e[2]({
-              value,
-              status: true,
-              focus: false,
-              submitStatus: true,
-           })
-         : e[2]({
-              value,
-              status: false,
-              focus: false,
-              submitStatus: false,
-           });
-   };
+      if (contactData) {
+         setFullName((state) => ({
+            ...state,
+            value: contactData.name || '',
+         }));
+         setEmail((state) => ({
+            ...state,
+            value: contactData.email || '',
+         }));
+         setJob((state) => ({ ...state, value: contactData.job || '' }));
+         setPhoneNumber((state) => ({
+            ...state,
+            value: contactData.phoneNumber || '',
+         }));
+      }
+   }, [contactData]);
 
    useEffect(() => {
       if (submitType === 'UPDATE-CONTACT') {
@@ -81,39 +82,19 @@ function Form({ submitType }) {
 
    const idMaker = () => Math.ceil(Math.pow(Math.random() * 35634, 3));
 
-   const focusHandler = (state, func) => {
-      if (!state.value.length) {
-         func((state) => ({ ...state, focus: true }));
-      }
-      setShowError(false);
-   };
-
-   const blurHandler = (state, func) => {
-      !state.value.length
-         ? func((state) => ({ ...state, focus: false, status: true }))
-         : state.status
-         ? func((state) => ({ ...state, focus: false, status: true }))
-         : func((state) => ({ ...state, focus: true, status: false }));
-   };
-   const moz = useMemo(() => {
-      let s = 342;
-      s = +234;
-      return () => {
-         console.log('moz');
-      };
-   }, []);
-   console.log(moz);
    const importantSubList = [
       { state: fullName, stateFunction: setFullName },
       { state: email, stateFunction: setEmail },
    ];
+
    const contact = {
-      id: submitType === 'UPDATE-CONTACT' ? +id : idMaker(),
-      name: fullName.value,
+      id: submitType === 'UPDATE-CONTACT' ? id : `${idMaker()}`,
+      name: fullName.value.trim(),
       email: email.value,
       job: job.value.trim(),
       phoneNumber: phoneNumber.value,
    };
+
    const submitHandler = (e) => {
       e.preventDefault();
 
@@ -124,7 +105,7 @@ function Form({ submitType }) {
          }
       });
 
-      if (!!invalids.length) {
+      if (invalids.length > 0) {
          invalids.map((item) => {
             const setAlert = importantSubList[item].stateFunction;
             {
@@ -154,29 +135,75 @@ function Form({ submitType }) {
          }
       }
    };
+   const [timeoutId, setTimeoutId] = useState(null);
+   const finalSubmit = async (contact) => {
+      if (timeoutId) {
+         clearTimeout(timeoutId);
+      }
+      setTimeout(() => {
+         setSuccessMessage((state) => {
+            const [a, b] = state;
+            return [a, b, 'successDiv'];
+         });
+      }, 10);
 
-   const finalSubmit = (contact) => {
-      dispatch({
-         type: submitType,
-         payload: contact,
-      });
+      const newTimeoutId = setTimeout(() => {
+         setSuccessMessage([false, '', '']);
+      }, 3000);
+
+      setTimeoutId(newTimeoutId);
+
+      if (submitType === 'UPDATE-CONTACT') {
+         axios
+            .patch(`http://localhost:3000/contacts/${contact.id}`, contact)
+            .then(() => {
+               return axios.get('http://localhost:3000/contacts');
+            })
+            .then((res) => {
+               dispatch({
+                  type: 'SET-CONTACTS',
+                  payload: res.data,
+               });
+            })
+            .catch((error) => {
+               console.log('Error:', error);
+            });
+      } else {
+         axios
+            .post('http://localhost:3000/contacts', {
+               ...contact,
+            })
+            .then(() => {
+               return axios.get('http://localhost:3000/contacts');
+            })
+            .then((res) => {
+               dispatch({
+                  type: 'SET-CONTACTS',
+                  payload: res.data,
+               });
+            })
+            .catch((error) => {
+               console.log('Error:', error);
+            });
+      }
    };
-   console.log(!![]);
+
    return (
       <>
-         <div className="lg:w-[70%] mx-auto font-semibold">
+         <div className="mx-auto font-semibold lg:w-[70%]">
             {showMessage[0] && !showError && (
                <AlertModule
                   finalSubmit={finalSubmit}
                   showMessage={showMessage}
+                  setSuccessMessage={setSuccessMessage}
                   setShowMessage={setShowMessage}
                   payload={[0]}
                   setShowError={() => {}}
                   text={''}
                />
             )}
-            {showError ? (
-               submitType === 'UPDATE-CONTACT' ? (
+            {showError &&
+               (submitType === 'UPDATE-CONTACT' ? (
                   prevData.name === fullName.value &&
                   prevData.email === email.value &&
                   prevData.job === job.value &&
@@ -185,6 +212,7 @@ function Form({ submitType }) {
                         finalSubmit={finalSubmit}
                         showMessage={showMessage}
                         setShowMessage={setShowMessage}
+                        setSuccessMessage={setSuccessMessage}
                         payload={['NO-CHANGE']}
                         setShowError={setShowError}
                         text={'مقادیر را تغییر نداده اید'}
@@ -198,6 +226,7 @@ function Form({ submitType }) {
                            contact,
                         ]}
                         setShowMessage={setShowMessage}
+                        setSuccessMessage={setSuccessMessage}
                         payload={['WAS-REGISTERED']}
                         setShowError={setShowError}
                         text={''}
@@ -208,42 +237,48 @@ function Form({ submitType }) {
                      finalSubmit={finalSubmit}
                      showMessage={showMessage}
                      setShowMessage={setShowMessage}
+                     setSuccessMessage={setSuccessMessage}
                      payload={['SEND', fullName.value]}
                      setShowError={setShowError}
                      text={
                         'این مخاطب قبلا در لیست مخاطبین ثبت شده است ، ایا قصد ویرایش دارید؟'
                      }
                   />
-               )
-            ) : null}
-
+               ))}
+            {successMessage[0] && (
+               <div
+                  id="successful"
+                  className="absolute top-1 h-16 w-fit rounded-xl bg-[#0e9149]"
+               >
+                  <div className="w-fit px-7 py-4">
+                     <span className="flex gap-x-5 text-white">
+                        {successMessage[1]}
+                        <FaRegCheckCircle />
+                     </span>
+                  </div>
+                  <div
+                     className={`mb-4 h-1 w-full rounded-b-full bg-[#8bb69e] py-1 ${successMessage[2]}`}
+                  ></div>
+               </div>
+            )}
             <form
                onSubmit={submitHandler}
-               className="flex flex-col gap-y-3 mt-10 maxXs:mt-8 px-20 maxXs:px-10 pt-16 maxXs:pt-10 pb-10 bg-[#D5AABD] shadowMor text-[#44122b] rounded-xl text-xl"
+               className="shadowMor mt-10 flex flex-col gap-y-3 rounded-xl bg-[#D5AABD] px-20 pb-10 pt-16 text-xl text-[#44122b] maxXs:mt-8 maxXs:px-10 maxXs:pt-10"
             >
                <div className="grid grid-cols-12">
                   <label
                      htmlFor="name"
-                     className="col-span-4 maxMd:col-span-12  maxXs:text-base flex items-center"
+                     className="col-span-4 flex items-center maxXs:text-base maxMd:col-span-12"
                   >
                      نام و نام خانوادگی
-                     <span className="text-[#c91616] mx-1 mb-3">*</span>:
+                     <span className="mx-1 mb-3 text-[#c91616]">*</span>:
                   </label>
-                  <input
+                  <Input
                      id="name"
-                     onChange={(e) =>
-                        validation([
-                           e.target.value,
-                           /^[a-zA-z\u0600-\u06FF\s\d]{4,20}$/,
-                           setFullName,
-                        ])
-                     }
-                     autoComplete="off"
-                     ref={input}
-                     value={fullName.value}
-                     onFocus={() => focusHandler(fullName, setFullName)}
-                     className="col-span-8 maxMd:col-span-12 p-2 bg-[#E3B9CC] rounded-md outline-[#D5AABD]"
-                     type="text"
+                     setstate={setFullName}
+                     state={fullName}
+                     setShowError={setShowError}
+                     regex={/^[a-zA-z\u0600-\u06FF\s\d]{4,20}$/}
                   />
 
                   {fullName.focus ? (
@@ -259,25 +294,16 @@ function Form({ submitType }) {
                <div className="grid grid-cols-12">
                   <label
                      htmlFor="email"
-                     className="col-span-4 maxMd:col-span-12  maxXs:text-base flex items-center"
+                     className="col-span-4 flex items-center maxXs:text-base maxMd:col-span-12"
                   >
-                     ایمیل<span className="text-[#c91616] mx-1 mb-3">*</span>:
+                     ایمیل<span className="mx-1 mb-3 text-[#c91616]">*</span>:
                   </label>
-                  <input
-                     autoComplete="off"
+                  <Input
                      id="email"
-                     onChange={(e) => {
-                        validation([
-                           e.target.value.trim(),
-                           /^[\w_\.]+@[a-zA-Z]+\.[a-zA-Z]{2,3}$/,
-                           setEmail,
-                        ]);
-                        setEmail((state) => ({ ...state, focus: false }));
-                     }}
-                     value={email.value}
-                     onFocus={() => focusHandler(email, setEmail)}
-                     className="col-span-8 maxMd:col-span-12 p-2 bg-[#E3B9CC] rounded-md outline-[#D5AABD]"
-                     type="text"
+                     setstate={setEmail}
+                     state={email}
+                     setShowError={setShowError}
+                     regex={/^[\w_\.]+@[a-zA-Z]+\.[a-zA-Z]{2,3}$/}
                   />
                   {email.focus ? (
                      <Alerts text={'این بخش نباید خالی بماند'} />
@@ -288,25 +314,16 @@ function Form({ submitType }) {
                <div className="grid grid-cols-12">
                   <label
                      htmlFor="job"
-                     className="col-span-4 maxMd:col-span-12  maxXs:text-base flex items-center"
+                     className="col-span-4 flex items-center maxXs:text-base maxMd:col-span-12"
                   >
                      شغل :
                   </label>
-                  <input
-                     autoComplete="off"
+                  <Input
                      id="job"
-                     onChange={(e) =>
-                        validation([
-                           e.target.value,
-                           /^[a-zA-z\u0600-\u06FF\s\d]{4,20}$/,
-                           setJob,
-                        ])
-                     }
-                     value={job.value}
-                     onBlur={() => blurHandler(job, setJob)}
-                     onFocus={() => focusHandler(job, setJob)}
-                     className="col-span-8 maxMd:col-span-12 p-2 bg-[#E3B9CC] rounded-md outline-[#D5AABD]"
-                     type="text"
+                     setstate={setJob}
+                     state={job}
+                     setShowError={setShowError}
+                     regex={/^[a-zA-z\u0600-\u06FF\s\d]{4,20}$/}
                   />
                   {job.focus ? (
                      <Alerts
@@ -325,25 +342,16 @@ function Form({ submitType }) {
                <div className="grid grid-cols-12">
                   <label
                      htmlFor="phone"
-                     className="col-span-4 maxMd:col-span-12  maxXs:text-base flex items-center"
+                     className="col-span-4 flex items-center maxXs:text-base maxMd:col-span-12"
                   >
                      تلفن همراه :
                   </label>
-                  <input
-                     autoComplete="off"
+                  <Input
                      id="phone"
-                     onChange={(e) =>
-                        validation([
-                           e.target.value.trim(),
-                           /^09[\d]{9}$/,
-                           setPhoneNumber,
-                        ])
-                     }
-                     value={phoneNumber.value}
-                     onBlur={() => blurHandler(phoneNumber, setPhoneNumber)}
-                     onFocus={() => focusHandler(phoneNumber, setPhoneNumber)}
-                     className="col-span-8 maxMd:col-span-12 p-2 bg-[#E3B9CC] outline-[#D5AABD] rounded-md"
-                     type="text"
+                     setstate={setPhoneNumber}
+                     state={phoneNumber}
+                     setShowError={setShowError}
+                     regex={/^09[\d]{9}$/}
                   />
                   {phoneNumber.focus ? (
                      <Alerts
@@ -360,7 +368,7 @@ function Form({ submitType }) {
                   ) : null}
                </div>
                <button
-                  className="mt-7 bg-[#802348] hover:bg-[#802348]/90 maxXs:text-base text-white/90 hover:text-white w-fit mx-auto p-3 hover:scale-105 rounded-xl transition-all"
+                  className="mx-auto mt-7 w-fit rounded-xl bg-[#802348] p-3 text-white/90 transition-all hover:scale-105 hover:bg-[#802348]/90 hover:text-white maxXs:text-base"
                   type="submit"
                >
                   {submitType === 'ADD-CONTACT'

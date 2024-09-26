@@ -8,31 +8,37 @@ import { BsCheckAll } from 'react-icons/bs';
 
 import { useContacts } from '../context/Contacts';
 import Search from '../components/Search';
-import AlertModule from '../components/AlertModule';
+
+import DeleteModule from '../components/DeleteModule';
+
+import { FaRegCheckCircle } from 'react-icons/fa';
 
 function Index() {
    const { state, dispatch } = useContacts();
    const [searchedItems, setSearchedItems] = useState([false, []]);
    const [searchedItemsStyles, setSearchedItemsStyles] = useState('');
    const [groupDelete, setGroupDelete] = useState(false);
-   const [showAlert, setShowAlert] = useState(false);
+   const [showDeleteModule, setShowDeleteModule] = useState([false, '', '']);
    const [showMessage, setShowMessage] = useState('');
    const [checked, setChecked] = useState([]);
+   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+   const [timeoutId, setTimeoutId] = useState(null);
 
    useEffect(() => {
       state.length
          ? !searchedItems[0] && !searchedItems[1]
             ? setSearchedItems([false, state])
             : searchedItems[0]
-            ? setShowMessage('NOT-FOUND')
-            : null
+              ? setShowMessage('NOT-FOUND')
+              : null
          : setShowMessage('NO-CONTACT');
    }, [searchedItems]);
+
    useEffect(() => {
       setSearchedItems([false, state]);
    }, [state]);
 
-   const checkBoxHandler = (e, id) => {
+   const checkBoxHandler = (id) => {
       if (!checked.includes(id)) {
          setGroupDelete(true);
          setChecked([...checked, id]);
@@ -45,15 +51,6 @@ function Index() {
       }
    };
 
-   const groupDeleteHandler = () => {
-      dispatch({
-         type: 'GROUP-DELETE',
-         payload: checked,
-      });
-
-      setGroupDelete(false);
-   };
-
    const allItemsselectHandler = () => {
       const selected = [];
       if (checked.length !== state.length) {
@@ -64,79 +61,124 @@ function Index() {
       setChecked(selected);
    };
 
+   const showMessageHandler = (code) => {
+      if (timeoutId) {
+         clearTimeout(timeoutId);
+      }
+      setTimeout(() => {
+         setShowSuccessAlert([true, code, 'successDiv']);
+      }, 10);
+
+      const newTimeoutId = setTimeout(() => {
+         setShowSuccessAlert([false, '', '']);
+      }, 3000);
+
+      setTimeoutId(newTimeoutId);
+      setShowDeleteModule([false, []]);
+   };
    return (
       <>
-         {/* {offMessage && receivedData.length && (
-            <Successful text={receivedData?.message} />
-         )} */}
-         {/* {showAlert && (
-            <AlertModule
-               finalSubmit={finalSubmit}
-               showMessage={showMessage}
-               setShowMessage={setShowMessage}
-               payload={['NO-CHANGE']}
-               setShowError={setShowError}
-               text={'مقادیر را تغییر نداده اید'}
-            />
-         )} */}
-         <div className="flex justify-between items-center bg-[#B88C9E] mt-20 px-10 py-6  rounded-t-xl">
-            <div className="flex items-end gap-x-5">
-               <img
-                  className="w-8 mb-1"
-                  src="/contacts-svgrepo-com (1).svg"
-                  alt=""
-               />
-               <span className="font-semibold text-[#5e364a] font-MorabbaBold text-3xl">
-                  مخاطب ها
-               </span>
-            </div>
-
-            <Search
-               searchedItems={searchedItems}
-               setSearchedItems={setSearchedItems}
-               setShowMessage={setShowMessage}
-               setSearchedItemsStyles={setSearchedItemsStyles}
-            />
-
-            <Link
-               className="flex gap-x-3 items-center text-[#573747] hover:bg-[#76616E] hover:text-[#f3d4e2] font-semibold text-xl font-MorabbaMedium p-2 px-4 mt-3 rounded-lg transition-all"
-               to={'add-contact'}
+         {showSuccessAlert[0] && (
+            <div
+               id="successful"
+               className="absolute top-1 h-16 w-fit rounded-xl bg-[#0e9149]"
             >
-               <span className="">
-                  <CiMedicalCross />
-               </span>
-               افزودن مخاطب
-            </Link>
+               <div className="w-fit px-7 py-4">
+                  <span className="flex gap-x-5 text-white">
+                     {showSuccessAlert[1] === 1
+                        ? 'مخاطب حذف شد : )'
+                        : 'مخاطب ها حذف شدند : )'}
+                     <FaRegCheckCircle />
+                  </span>
+               </div>
+               <div
+                  className={`mb-4 h-1 w-full rounded-b-full bg-[#8bb69e] py-1 ${showSuccessAlert[2]} `}
+               ></div>
+            </div>
+         )}
+         {showDeleteModule[0] && (
+            <DeleteModule
+               showDeleteModule={showDeleteModule}
+               setShowDeleteModule={setShowDeleteModule}
+               dispatch={dispatch}
+               setGroupDelete={setGroupDelete}
+               setChecked={setChecked}
+               setShowSuccessAlert={setShowSuccessAlert}
+               showMessageHandler={showMessageHandler}
+            />
+         )}
+         <div className="mt-20 rounded-t-xl bg-[#B88C9E] px-10 py-6 maxMd:justify-around maxLg:px-6">
+            <div className="flex items-center justify-between">
+               <div className="mt-1.5 flex items-end gap-x-5">
+                  <img
+                     className="w-8"
+                     src="/contacts-svgrepo-com (1).svg"
+                     alt=""
+                  />
+                  <span className="font-MorabbaBold text-2xl font-semibold text-[#5e364a] maxLg:text-xl">
+                     مخاطب ها
+                  </span>
+               </div>
+
+               <div className="maxMd:hidden">
+                  <Search
+                     searchedItems={searchedItems}
+                     setSearchedItems={setSearchedItems}
+                     setShowMessage={setShowMessage}
+                     setSearchedItemsStyles={setSearchedItemsStyles}
+                  />
+               </div>
+
+               <Link
+                  className="mt-1.5 flex items-center gap-x-3 rounded-lg p-2 px-2 font-MorabbaMedium text-xl font-semibold text-[#573747] transition-all hover:bg-[#76616E] hover:text-[#f3d4e2] maxLg:gap-x-2"
+                  to={'add-contact'}
+               >
+                  <span className="">
+                     <CiMedicalCross />
+                  </span>
+                  افزودن مخاطب
+               </Link>
+            </div>
+            <div className="md:hidden">
+               <Search
+                  searchedItems={searchedItems}
+                  setSearchedItems={setSearchedItems}
+                  setShowMessage={setShowMessage}
+                  setSearchedItemsStyles={setSearchedItemsStyles}
+               />
+            </div>
          </div>
          {showMessage && showMessage === 'NO-CONTACT' ? (
-            <div className="flex justify-center items-center  bg-[#D5AABD] rounded-b-xl text-4xl text-[#704C5E]">
+            <div className="flex items-center justify-center rounded-b-xl bg-[#D5AABD] text-4xl text-[#704C5E]">
                <span className="p-10">دریغ از یک مخاطب ... !</span>
             </div>
          ) : showMessage === 'NOT-FOUND' ? (
-            <div className="flex justify-center items-center  bg-[#D5AABD] rounded-b-xl font-DanaMedium text-4xl text-[#704C5E]">
+            <div className="flex items-center justify-center rounded-b-xl bg-[#D5AABD] font-DanaMedium text-4xl text-[#704C5E]">
                <span className="p-10">مخاطبی با این مشخصات یافت نشد !</span>
             </div>
          ) : (
-            <div className="bg-[#D5AABD] text-pink-800 text-2xl pt-0 rounded-xl rounded-t-none">
+            <div className="rounded-xl rounded-t-none bg-[#D5AABD] pt-0 text-2xl text-pink-800">
                <div className="pt-5">
-                  <div className="grid grid-cols-12 pb-6 px-8 text-[#704C5E] font-bold drop-shadow-md shadow-lg">
-                     <span className="col-span-1 flex justify-center items-center">
+                  <div className="grid grid-cols-12 px-8 pb-6 font-bold text-[#704C5E] shadow-lg drop-shadow-md">
+                     <span className="col-span-1 flex items-center justify-center">
                         {groupDelete && (
-                           <div className="w-full flex justify-between">
+                           <div className="flex w-full justify-between">
                               <button
-                                 className="hover:bg-[#ac3866] p-0.5 hover:text-white/80 rounded-lg"
+                                 className="rounded-lg p-0.5 hover:bg-[#ac3866] hover:text-white/80"
                                  onClick={allItemsselectHandler}
                               >
                                  <BsCheckAll size={30} />
                               </button>
                               <button
-                                 className="hover:bg-[#ac3866] p-1.5 hover:text-white/80 rounded-lg"
-                                 onClick={groupDeleteHandler}
+                                 className="rounded-lg p-1.5 hover:bg-[#ac3866] hover:text-white/80"
+                                 onClick={() =>
+                                    setShowDeleteModule([true, checked, ''])
+                                 }
                               >
                                  <RiDeleteBinLine size={23} />
                               </button>
                               <button
-                                 className="hover:bg-[#ac3866] p-1.5 hover:text-white/80 rounded-lg"
+                                 className="rounded-lg p-1.5 hover:bg-[#ac3866] hover:text-white/80"
                                  onClick={() => {
                                     setGroupDelete(false);
                                     setChecked([]);
@@ -147,141 +189,87 @@ function Index() {
                            </div>
                         )}
                      </span>
-                     <span className="col-span-3 flex justify-center items-center">
+                     <span className="col-span-3 flex items-center justify-center">
                         نام و نام‌خانوادگی
                      </span>
-                     <span className="col-span-6 flex justify-center items-center">
+                     <span className="col-span-6 flex items-center justify-center">
                         ایمیل
                      </span>
-                     <span className="col-span-1 flex justify-center items-center">
+                     <span className="col-span-1 flex items-center justify-center">
                         ویرایش
                      </span>
-                     <span className="col-span-1 flex justify-center items-center">
+                     <span className="col-span-1 flex items-center justify-center">
                         حذف
                      </span>
                   </div>
-                  <div className=" max-h-[605px] p-7 overflow-y-auto scrollbar-webkit m-1">
-                     {searchedItems[1]?.map((i) => (
-                        <div
-                           key={i.id}
-                           className="grid grid-cols-12 py-4 rounded-xl my-1 bg-[#E3B9CC] hover:bg-[#E7BDD0]"
-                        >
-                           <span className="col-span-1 flex justify-center items-center">
-                              <input
-                                 className="accent-pink-500 outline-none w-4 h-4 rounded-lg"
-                                 type="checkBox"
-                                 checked={checked.includes(i.id)}
-                                 onChange={(e) => {
-                                    checkBoxHandler(e, i.id);
-                                 }}
-                              />
-                           </span>
+                  {searchedItems[1].length > 0 && (
+                     <div className="m-1 max-h-[605px] overflow-y-auto p-7 scrollbar-webkit">
+                        {searchedItems[1].map((i) => (
                            <div
-                              className={`col-span-3 flex justify-between items-center ${
-                                 searchedItemsStyles === 'NAME' &&
-                                 'text-pink-950 font-semibold'
-                              }`}
+                              key={i.id}
+                              className="my-1 grid grid-cols-12 rounded-xl bg-[#E3B9CC] py-4 hover:bg-[#E7BDD0]"
                            >
-                              <span className="w-full flex justify-center">
-                                 {i.name}
+                              <span className="col-span-1 flex items-center justify-center">
+                                 <input
+                                    className="h-4 w-4 rounded-lg accent-pink-500 outline-none"
+                                    type="checkBox"
+                                    checked={checked.includes(i.id)}
+                                    onChange={() => checkBoxHandler(i.id)}
+                                 />
                               </span>
-                              <span className="w-px h-full bg-gray-300"></span>
-                           </div>
-                           <span
-                              className={`col-span-6 flex justify-between mr-5 items-center ${
-                                 searchedItemsStyles === 'EMAIL' &&
-                                 'text-pink-950 font-semibold'
-                              }`}
-                           >
-                              <span className="w-full flex justify-center">
-                                 {i.email}
-                              </span>
-                              <span className="w-px h-full bg-gray-300"></span>
-                           </span>
-                           <Link
-                              className="col-span-1 flex justify-between items-center"
-                              to={`/contact/${i.id}`}
-                           >
-                              <div className="w-full flex justify-center">
-                                 <span className="pt-1.5 pr-1.5 pb-2 pl-2 rounded-md hover:bg-[#ac3866] hover:text-white/80">
-                                    <LiaEditSolid />
-                                 </span>
-                              </div>
-                              <span className="w-px h-full bg-gray-300"></span>
-                           </Link>
-                           <span className="col-span-1 flex justify-center items-center">
-                              <span
-                                 className="p-2 rounded-md hover:bg-[#ac3866] hover:text-white/80"
-                                 onClick={() =>
-                                    dispatch({
-                                       type: 'DELETE-ITEM',
-                                       payload: i.id,
-                                    })
-                                 }
+                              <div
+                                 className={`col-span-3 flex items-center justify-between ${
+                                    searchedItemsStyles === 'NAME' &&
+                                    'font-semibold text-pink-950'
+                                 }`}
                               >
-                                 <RiDeleteBinLine />
+                                 <span className="flex w-full justify-center">
+                                    {i.name}
+                                 </span>
+                                 <span className="h-full w-px bg-gray-300"></span>
+                              </div>
+                              <span
+                                 className={`col-span-6 mr-5 flex items-center justify-between ${
+                                    searchedItemsStyles === 'EMAIL' &&
+                                    'font-semibold text-pink-950'
+                                 }`}
+                              >
+                                 <span className="flex w-full justify-center">
+                                    {i.email}
+                                 </span>
+                                 <span className="h-full w-px bg-gray-300"></span>
                               </span>
-                           </span>
-                        </div>
-                     ))}
-                  </div>
+                              <Link
+                                 className="col-span-1 flex items-center justify-between"
+                                 to={`/contact/${i.id}`}
+                              >
+                                 <div className="flex w-full justify-center">
+                                    <span className="rounded-md pb-2 pl-2 pr-1.5 pt-1.5 hover:bg-[#ac3866] hover:text-white/80">
+                                       <LiaEditSolid />
+                                    </span>
+                                 </div>
+                                 <span className="h-full w-px bg-gray-300"></span>
+                              </Link>
+                              <span className="col-span-1 flex items-center justify-center">
+                                 <span
+                                    className="rounded-md p-2 hover:bg-[#ac3866] hover:text-white/80"
+                                    onClick={() =>
+                                       setShowDeleteModule([
+                                          true,
+                                          [i.id],
+                                          'SINGLE',
+                                       ])
+                                    }
+                                 >
+                                    <RiDeleteBinLine />
+                                 </span>
+                              </span>
+                           </div>
+                        ))}
+                     </div>
+                  )}
                   <div className="myShadow h-px"></div>
                </div>
-               {/* <table className="border border-black p-3 mx-auto w-full mt-[500px] text-center">
-            <thead>
-            <tr>
-            <th className="border border-black p-3">نام</th>
-            <th className="border border-black p-3">ایمیل</th>
-            <th className="border border-black p-3">ایمیل</th>
-            </tr>
-            </thead>
-            <tbody>
-               {showMessage ? (
-                  showMessage === 'NO-CONTACT' ? (
-                     <tr>
-                        <td>no contact</td>
-                     </tr>
-                  ) : showMessage === 'NOT-FOUND' ? (
-                     <tr>
-                        <td>not found</td>
-                     </tr>
-                  ) : null
-               ) : null}
-               {searchedItems[1]?.map((i) => (
-                  <tr key={i.id}>
-                     <td className="border border-black p-3">{i.name}</td>
-                     <td className="border border-black p-3">{i.email}</td>
-                     <td className="border-black w-fit p-3 flex justify-center gap-x-5">
-                        <span
-                           className="w-1 inline-block"
-                           onClick={() => editeHandler(i.id)}
-                        >
-                           <IoSettingsOutline />
-                        </span>
-                        <span
-                           className="w-1 inline-block"
-                           onClick={() =>
-                              dispatch({
-                                 type: 'DELETE-ITEM',
-                                 payload: i.id,
-                              })
-                           }
-                        >
-                           <RiDeleteBinLine />
-                        </span>
-                        {groupDelete[0] && (
-                           <input
-                              type="checkBox"
-                              onChange={(e) => {
-                                 checkBoxHandler(e, i.id);
-                              }}
-                           />
-                        )}
-                     </td>
-                  </tr>
-               ))}
-            </tbody>
-         </table> */}
             </div>
          )}
       </>

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useEffect, useState } from 'react';
 import { LiaSearchSolid } from 'react-icons/lia';
 
@@ -5,7 +6,7 @@ import { useContacts } from '../context/Contacts';
 import { FaXmark } from 'react-icons/fa6';
 
 function Search({ setSearchedItems, setShowMessage, setSearchedItemsStyles }) {
-   const { state,  } = useContacts();
+   const { state } = useContacts();
    const [searchedValue, setSearchedValue] = useState('');
    const [searchedItemLength, setSearchedItemLength] = useState(-1);
    const [focusOnSearch, setFocusOnSearch] = useState(false);
@@ -16,15 +17,15 @@ function Search({ setSearchedItems, setShowMessage, setSearchedItemsStyles }) {
       if (searchedValue.includes('@')) {
          searchedItem.push(
             ...state.filter((i) =>
-               searchedValue === '' ? true : i.email.includes(searchedValue)
-            )
+               searchedValue === '' ? true : i.email.includes(searchedValue),
+            ),
          );
          searchedValue.length && setSearchedItemsStyles('EMAIL');
       } else {
          searchedItem.push(
             ...state.filter((i) =>
-               searchedValue === '' ? true : i.name.includes(searchedValue)
-            )
+               searchedValue === '' ? true : i.name.includes(searchedValue),
+            ),
          );
          searchedValue.length && setSearchedItemsStyles('NAME');
       }
@@ -44,7 +45,7 @@ function Search({ setSearchedItems, setShowMessage, setSearchedItemsStyles }) {
       <>
          <div className="relative">
             <span
-               className="absolute top-4.5 right-2.5"
+               className="absolute right-2.5 top-4.5"
                onClick={() => {
                   if (focusOnSearch) {
                      setSearchedValue('');
@@ -60,7 +61,7 @@ function Search({ setSearchedItems, setShowMessage, setSearchedItemsStyles }) {
             </span>
             <input
                placeholder="جستوجو کنید ( نام یا ایمیل با @) ..."
-               className="m w-96 rounded-lg pt-2.5 pl-3 pr-10 pb-2 mt-1 text-lg text-[#c07d9b] bg-[#E3B9CC] outline-white/20"
+               className="m mt-1 w-96 rounded-lg bg-[#E3B9CC] pb-2 pl-3 pr-10 pt-2.5 text-lg text-[#c07d9b] outline-white/20 maxLg:w-72"
                onChange={(e) => {
                   setSearchedValue(e.target.value);
                }}
