@@ -5,7 +5,7 @@ import { useContacts } from '../context/Contacts';
 import { useParams } from 'react-router-dom';
 
 import Alerts from './Alerts';
-import AlertModule from './AlertModule';
+import AlertModal from './AlertModal';
 import axios from 'axios';
 import { FaRegCheckCircle } from 'react-icons/fa';
 import Input from './Input';
@@ -192,7 +192,7 @@ function Form({ submitType }) {
       <>
          <div className="mx-auto font-semibold lg:w-[70%]">
             {showMessage[0] && !showError && (
-               <AlertModule
+               <AlertModal
                   finalSubmit={finalSubmit}
                   showMessage={showMessage}
                   setSuccessMessage={setSuccessMessage}
@@ -208,7 +208,7 @@ function Form({ submitType }) {
                   prevData.email === email.value &&
                   prevData.job === job.value &&
                   prevData.phoneNumber === phoneNumber.value ? (
-                     <AlertModule
+                     <AlertModal
                         finalSubmit={finalSubmit}
                         showMessage={showMessage}
                         setShowMessage={setShowMessage}
@@ -218,7 +218,7 @@ function Form({ submitType }) {
                         text={'مقادیر را تغییر نداده اید'}
                      />
                   ) : (
-                     <AlertModule
+                     <AlertModal
                         finalSubmit={finalSubmit}
                         showMessage={[
                            true,
@@ -233,7 +233,7 @@ function Form({ submitType }) {
                      />
                   )
                ) : (
-                  <AlertModule
+                  <AlertModal
                      finalSubmit={finalSubmit}
                      showMessage={showMessage}
                      setShowMessage={setShowMessage}

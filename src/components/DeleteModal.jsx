@@ -2,10 +2,10 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
-function DeleteModule(props) {
+function DeleteModal(props) {
    const {
-      showDeleteModule,
-      setShowDeleteModule,
+      showDeleteModal,
+      setShowDeleteModal,
       dispatch,
       setGroupDelete,
       setChecked,
@@ -16,11 +16,11 @@ function DeleteModule(props) {
    const [noItem, setNoItem] = useState(false);
 
    useEffect(() => {
-      if (showDeleteModule[2] === 'SINGLE') {
+      if (showDeleteModal[2] === 'SINGLE') {
          setGroupDelete(false);
          setChecked([]);
       }
-      if (!showDeleteModule[1].length) {
+      if (!showDeleteModal[1].length) {
          setNoItem(true);
       } else {
          setNoItem(false);
@@ -74,16 +74,16 @@ function DeleteModule(props) {
                <span className="font-DanaMedium tracking-wider text-[#72326d]">
                   {noItem
                      ? 'هیچ مخاطبی برای حذف انتخاب نکرده اید!'
-                     : showDeleteModule[1].length === 1
+                     : showDeleteModal[1].length === 1
                        ? 'مطمئنید که می‌خواهید این مخاطب را حذف کنید؟'
                        : 'مطمئنید که می‌خواهید این مخاطب ها را حذف کنید؟'}
                </span>
-               {showDeleteModule[0] &&
+               {showDeleteModal[0] &&
                   (noItem ? (
                      <div>
                         <button
                            className="h-10 w-10 rounded-lg bg-[#743454] tracking-wider text-white"
-                           onClick={() => setShowDeleteModule([false, []])}
+                           onClick={() => setShowDeleteModal([false, []])}
                         >
                            حله
                         </button>
@@ -93,7 +93,7 @@ function DeleteModule(props) {
                         <button
                            className="h-10 w-10 rounded-lg bg-[#743454] tracking-wider text-white"
                            onClick={() => {
-                              deleteHandler(showDeleteModule[1]);
+                              deleteHandler(showDeleteModal[1]);
                               setShowSuccessAlert([false, '', '']);
                            }}
                         >
@@ -101,7 +101,7 @@ function DeleteModule(props) {
                         </button>
                         <button
                            className="h-10 w-10 rounded-lg bg-[#743454] tracking-wider text-white"
-                           onClick={() => setShowDeleteModule([false, []])}
+                           onClick={() => setShowDeleteModal([false, []])}
                         >
                            خیر
                         </button>
@@ -113,4 +113,4 @@ function DeleteModule(props) {
    );
 }
 
-export default DeleteModule;
+export default DeleteModal;

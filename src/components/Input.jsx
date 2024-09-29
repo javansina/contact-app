@@ -64,7 +64,7 @@ function Input({ id, setstate, state, setShowError, regex }) {
             }
          }}
          className="col-span-8 rounded-md bg-[#E3B9CC] p-2 outline-[#D5AABD] maxMd:col-span-12"
-         type="text"
+         type={id === 'phone' ? 'number' : 'text'}
       />
    );
 }

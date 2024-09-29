@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 import { useContacts } from '../context/Contacts';
 
-function AlertModule({
+function AlertModal({
    text,
    setShowError,
    payload,
@@ -100,4 +100,4 @@ function AlertModule({
    );
 }
 
-export default AlertModule;
+export default AlertModal;

@@ -1,28 +1,29 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+
 import { RiDeleteBinLine } from 'react-icons/ri';
 import { CiMedicalCross } from 'react-icons/ci';
 import { FaXmark } from 'react-icons/fa6';
-import { LiaEditSolid } from 'react-icons/lia';
 import { BsCheckAll } from 'react-icons/bs';
+import { FaRegCheckCircle } from 'react-icons/fa';
+import { IoEllipsisHorizontalCircleOutline } from 'react-icons/io5';
 
 import { useContacts } from '../context/Contacts';
 import Search from '../components/Search';
-
-import DeleteModule from '../components/DeleteModule';
-
-import { FaRegCheckCircle } from 'react-icons/fa';
+import DeleteModal from '../components/DeleteModal';
+import DetailsModal from '../components/DetailsModal';
 
 function Index() {
    const { state, dispatch } = useContacts();
    const [searchedItems, setSearchedItems] = useState([false, []]);
    const [searchedItemsStyles, setSearchedItemsStyles] = useState('');
    const [groupDelete, setGroupDelete] = useState(false);
-   const [showDeleteModule, setShowDeleteModule] = useState([false, '', '']);
+   const [showDeleteModal, setShowDeleteModal] = useState([false, '', '']);
    const [showMessage, setShowMessage] = useState('');
    const [checked, setChecked] = useState([]);
    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
    const [timeoutId, setTimeoutId] = useState(null);
+   const [showDetails, setShowDetails] = useState([false, '']);
 
    useEffect(() => {
       state.length
@@ -74,7 +75,7 @@ function Index() {
       }, 3000);
 
       setTimeoutId(newTimeoutId);
-      setShowDeleteModule([false, []]);
+      setShowDeleteModal([false, []]);
    };
    return (
       <>
@@ -96,10 +97,10 @@ function Index() {
                ></div>
             </div>
          )}
-         {showDeleteModule[0] && (
-            <DeleteModule
-               showDeleteModule={showDeleteModule}
-               setShowDeleteModule={setShowDeleteModule}
+         {showDeleteModal[0] && (
+            <DeleteModal
+               showDeleteModal={showDeleteModal}
+               setShowDeleteModal={setShowDeleteModal}
                dispatch={dispatch}
                setGroupDelete={setGroupDelete}
                setChecked={setChecked}
@@ -172,7 +173,7 @@ function Index() {
                               <button
                                  className="rounded-lg p-1.5 hover:bg-[#ac3866] hover:text-white/80"
                                  onClick={() =>
-                                    setShowDeleteModule([true, checked, ''])
+                                    setShowDeleteModal([true, checked, ''])
                                  }
                               >
                                  <RiDeleteBinLine size={23} />
@@ -189,17 +190,14 @@ function Index() {
                            </div>
                         )}
                      </span>
-                     <span className="col-span-3 flex items-center justify-center">
-                        نام و نام‌خانوادگی
+                     <span className="col-span-4 flex items-center justify-center">
+                        نام مخاطب
                      </span>
                      <span className="col-span-6 flex items-center justify-center">
                         ایمیل
                      </span>
                      <span className="col-span-1 flex items-center justify-center">
-                        ویرایش
-                     </span>
-                     <span className="col-span-1 flex items-center justify-center">
-                        حذف
+                        جزئیات
                      </span>
                   </div>
                   {searchedItems[1].length > 0 && (
@@ -218,7 +216,7 @@ function Index() {
                                  />
                               </span>
                               <div
-                                 className={`col-span-3 flex items-center justify-between ${
+                                 className={`col-span-4 flex items-center justify-between ${
                                     searchedItemsStyles === 'NAME' &&
                                     'font-semibold text-pink-950'
                                  }`}
@@ -239,29 +237,12 @@ function Index() {
                                  </span>
                                  <span className="h-full w-px bg-gray-300"></span>
                               </span>
-                              <Link
-                                 className="col-span-1 flex items-center justify-between"
-                                 to={`/contact/${i.id}`}
-                              >
-                                 <div className="flex w-full justify-center">
-                                    <span className="rounded-md pb-2 pl-2 pr-1.5 pt-1.5 hover:bg-[#ac3866] hover:text-white/80">
-                                       <LiaEditSolid />
-                                    </span>
-                                 </div>
-                                 <span className="h-full w-px bg-gray-300"></span>
-                              </Link>
-                              <span className="col-span-1 flex items-center justify-center">
+                              <span className="col-span-1 flex w-full justify-center">
                                  <span
+                                    onClick={() => setShowDetails([true, i])}
                                     className="rounded-md p-2 hover:bg-[#ac3866] hover:text-white/80"
-                                    onClick={() =>
-                                       setShowDeleteModule([
-                                          true,
-                                          [i.id],
-                                          'SINGLE',
-                                       ])
-                                    }
                                  >
-                                    <RiDeleteBinLine />
+                                    <IoEllipsisHorizontalCircleOutline />
                                  </span>
                               </span>
                            </div>
@@ -271,6 +252,13 @@ function Index() {
                   <div className="myShadow h-px"></div>
                </div>
             </div>
+         )}
+         {showDetails[0] && (
+            <DetailsModal
+               showDetails={showDetails}
+               setShowDeleteModal={setShowDeleteModal}
+               setShowDetails={setShowDetails}
+            />
          )}
       </>
    );
